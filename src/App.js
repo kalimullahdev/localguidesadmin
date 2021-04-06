@@ -17,7 +17,7 @@ function App() {
             <Route exact path="/">
               <Dashboard/>
             </Route>
-            <Route path="/edit">
+            <Route path="/AElocalGuides">
               <EditLocalGuide/>
             </Route>
           </Switch>

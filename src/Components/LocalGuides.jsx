@@ -9,6 +9,9 @@ import TableRow from '@material-ui/core/TableRow';
 import Title from './Title';
 import firebaseApp from '../firebaseServices/firebase';
 import MyTableRow from './MyTableRow/MyTableRow';
+import { Button, Grid } from '@material-ui/core';
+import { useHistory } from "react-router-dom";
+
 
 
 
@@ -22,21 +25,24 @@ const useStyles = makeStyles((theme) => ({
   },
   marginAll: {
     margin: theme.spacing(1),
-  }
+  },
+  buttonWidth:{
+    width: theme.spacing(42),
+    margin: theme.spacing(2),
+  },
 }));
 
 
 
 export default function LocalGuides() {
   const [userDataRow, setuserDataRow] = useState();
-
+  const history = useHistory();
 
   useEffect(() => {
-    console.log("Kalim Ullah");
-    var lgUsersRef = firebaseApp.database().ref('users/');
+    var lgUsersRef = firebaseApp.database().ref("users");
     console.log("1");
 
-    lgUsersRef.on('value', (snapshot) => {
+    lgUsersRef.on("value", (snapshot) => {
       console.log("2");
 
       const data = snapshot.val();
@@ -52,11 +58,32 @@ export default function LocalGuides() {
 
   }, []);
   
+  function goToAddPage(){
+    history.push({
+      pathname: '/AElocalGuides',
+      search: '?query=abc',
+      state: { detail: '' }
+    });
+  }
+  
 
   const classes = useStyles();
   return (
     <React.Fragment>
       <Title>Local Guides Users</Title>
+      <Grid
+      container
+      direction="row"
+      justify="center"
+      alignItems="center"
+      >
+        <Button
+          variant="contained" 
+          color="primary"
+          className={classes.buttonWidth}
+          onClick={goToAddPage }
+        >Add Local Guide</Button>
+      </Grid>
       <Table size="small">
         <TableHead>
           <TableRow>
@@ -75,7 +102,7 @@ export default function LocalGuides() {
         <TableBody>
           {userDataRow ? userDataRow.map((row) => (
             <MyTableRow row={row}/>
-          )): ""}
+          )): "No data fetched from Database"}
         </TableBody>
       </Table>
       <div className={classes.seeMore}>

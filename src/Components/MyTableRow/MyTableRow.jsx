@@ -21,22 +21,46 @@ export default function MyTableRow({row}) {
     const history = useHistory();
 
     function deleteLocalGuide(){
+      
         const localGuideRef = firebaseApp.database().ref("users/").child(row.uid);
+        // var deleteUserRef = firebaseApp.auth();
+
+        // deleteUserRef.delete().then(function() {
+        //   console.log("User deleted.")
+        // }).catch(function(error) {
+        //   console.log("An error happened.")
+        // });
         localGuideRef.remove();
     }
+
+    
     
     function editLocalGuide(){
+
+      firebaseApp.database().ref("users/").child(row.uid).get().then(function(snapshot) {
+        if (snapshot.exists()) {
+          const lgUserData = snapshot.val();
+          history.push({
+            pathname: '/AElocalGuides',
+            search: '?query=abc',
+            state: { detail: lgUserData }
+          })
+        }
+        else {
+          console.log("No data available");
+        }
+      }).catch(function(error) {
+        console.error(error);
+      });
+
+
       // const localGuideRef = firebaseApp.database().ref("users/").child(row.uid);
-      history.push({
-        pathname: '/edit',
-        search: '?query=abc',
-        state: { detail: "localGuideRef" }
-      })
+
 
     }
 
     return (
-    <TableRow key={row.id}>
+        <TableRow key={row.id}>
         <TableCell>{row.username}</TableCell>
         <TableCell>{row.email}</TableCell>
         <TableCell>{row.followers}</TableCell>
