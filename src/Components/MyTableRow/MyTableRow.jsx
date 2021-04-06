@@ -26,13 +26,13 @@ export default function MyTableRow({row}) {
     }
     
     function editLocalGuide(){
-      const localGuideRef = firebaseApp.database().ref("users/").child(row.uid);
+      // const localGuideRef = firebaseApp.database().ref("users/").child(row.uid);
       history.push({
         pathname: '/edit',
         search: '?query=abc',
         state: { detail: "localGuideRef" }
       })
-      
+
     }
 
     return (

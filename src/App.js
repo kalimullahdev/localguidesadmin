@@ -5,7 +5,6 @@ import {
   BrowserRouter as Router,
   Switch,
   Route,
-  Link
 } from "react-router-dom";
 import EditLocalGuide from "./Components/EditLocalGuide/EditLocalGuide";
 

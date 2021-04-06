@@ -32,9 +32,15 @@ export default function LocalGuides() {
 
 
   useEffect(() => {
-    var lgUsersRef = firebaseApp.database().ref('users');
+    console.log("Kalim Ullah");
+    var lgUsersRef = firebaseApp.database().ref('users/');
+    console.log("1");
+
     lgUsersRef.on('value', (snapshot) => {
+      console.log("2");
+
       const data = snapshot.val();
+      console.log(data);
       const userList = [];
       for (let id in data){
         userList.push(data[id]);
@@ -68,7 +74,7 @@ export default function LocalGuides() {
         </TableHead>
         <TableBody>
           {userDataRow ? userDataRow.map((row) => (
-            <MyTableRow row={row} />
+            <MyTableRow row={row}/>
           )): ""}
         </TableBody>
       </Table>
