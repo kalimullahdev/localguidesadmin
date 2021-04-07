@@ -6,12 +6,16 @@ import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
-import firebaseApp from '../../firebaseServices/firebase';
+import firebaseApp, { storage } from '../../firebaseServices/firebase';
 import { useHistory } from "react-router-dom";
 import { useLocation } from "react-router-dom";
+import { CardMedia } from '@material-ui/core';
 
 
 const useStyles = makeStyles((theme) => ({
+  root: {
+    marginTop: theme.spacing(4),
+  },
   paper: {
     marginTop: theme.spacing(8),
     display: 'flex',
@@ -28,10 +32,16 @@ const useStyles = makeStyles((theme) => ({
   },
   submit: {
     margin: theme.spacing(3, 0, 2),
+  },input: {
+    display: 'none',
   },
+  media:{
+    height: 140,
+    margin:theme.spacing(2),
+  }
 }));
 
-function updateUserData(sUserId, sUserName, sLocation, sAbout, sFollowers, sPhoneNumber) {
+function updateUserData(sUserId, sUserName, sLocation, sAbout, sFollowers, sPhoneNumber,profilePic) {
   firebaseApp.database().ref('users/' + sUserId).update({
     username: sUserName,
     // email: email,
@@ -39,13 +49,13 @@ function updateUserData(sUserId, sUserName, sLocation, sAbout, sFollowers, sPhon
     followers:sFollowers,
     about:sAbout,
     location:sLocation,
-    // profilePic:"",
+    profilePic:profilePic,
     uid:sUserId,
   });
 }
 
 
-function createUserData(sUserId, sUserName, sLocation, sAbout, sFollowers, sPhoneNumber,  sEmail, sPassword) {
+function createUserData( sUserName, sLocation, sAbout, sFollowers, sPhoneNumber,  sEmail, sPassword, profilePic) {
 
     firebaseApp.auth().createUserWithEmailAndPassword(sEmail, sPassword)
       .then((userCredential) => {
@@ -59,7 +69,7 @@ function createUserData(sUserId, sUserName, sLocation, sAbout, sFollowers, sPhon
           followers:sFollowers,
           about:sAbout,
           location:sLocation,
-          profilePic:"",
+          profilePic:profilePic,
           uid:userID,
         });        
         // ...
@@ -78,6 +88,18 @@ export default function EditLocalGuide(props) {
   const history = useHistory();
   const location = useLocation();
 
+  //Image upload
+  const allInputs = {imgUrl: ''}
+  const [imageAsFile, setImageAsFile] = useState('')
+  const [imageAsUrl, setImageAsUrl] = useState(allInputs)
+  console.log(imageAsFile)
+  const handleImageAsFile = (e) => {
+       const image = e.target.files[0]
+       setImageAsFile(imageFile => (image))
+   }
+ 
+
+
   const [sPhoneNumber, setsPhoneNumber] = useState('');
   const [sFollowers, setsFollowers] = useState('');
   const [sAbout, setsAbout] = useState('');
@@ -87,6 +109,7 @@ export default function EditLocalGuide(props) {
   const [sAdd, setsAdd] = useState(false);
   const [sEmail, setsEmail] = useState('');
   const [sPassword, setsPassword] = useState('');
+  // const [sProfilePic, setsProfilePic] = useState(imageAsUrl.imgUrl);
   
 
 
@@ -94,8 +117,35 @@ export default function EditLocalGuide(props) {
     function handleSubmit(event) {
       event.preventDefault();
 
-      sAdd ? createUserData(sUserId, sUserName, sLocation, sAbout, sFollowers, sPhoneNumber, sEmail, sPassword) :
-      updateUserData(sUserId, sUserName, sLocation, sAbout, sFollowers, sPhoneNumber);
+      // Upload Image To Firebase Firestore
+      console.log('start of upload')
+      // async magic goes here...
+      if(imageAsFile === '') {
+        console.error(`not an image, the image file is a ${typeof(imageAsFile)}`)
+      }
+      const uploadTask =  storage.ref(`/images/${imageAsFile.name}`).put(imageAsFile)
+      //initiates the firebase side uploading 
+      uploadTask.on('state_changed', 
+      (snapShot) => {
+        //takes a snap shot of the process as it is happening
+        console.log(snapShot)
+      }, (err) => {
+        //catches the errors
+        console.log(err)
+      }, () => {
+        // gets the functions from storage refences the image storage in firebase by the children
+        // gets the download url then sets the image from firebase as the value for the imgUrl key:
+        storage.ref('images').child(imageAsFile.name).getDownloadURL()
+        .then(fireBaseUrl => {
+          const profilePic  = fireBaseUrl;
+
+          setImageAsUrl(prevObject => ({...prevObject, imgUrl: fireBaseUrl}))
+          sAdd ? createUserData( sUserName, sLocation, sAbout, sFollowers, sPhoneNumber, sEmail, sPassword,profilePic) :
+          updateUserData(sUserId, sUserName, sLocation, sAbout, sFollowers, sPhoneNumber,profilePic);
+        })
+      })
+
+      
 
       history.push('/');
       
@@ -112,14 +162,16 @@ export default function EditLocalGuide(props) {
           setsAbout(data.about);
           setsLocation(data.location);
           setsUserName(data.username);
+          imageAsUrl.imgUrl ? setImageAsUrl(prevObject => ({...prevObject, imgUrl: imageAsUrl.imgUrl})) : setImageAsUrl(prevObject => ({...prevObject, imgUrl: data.profilePic})) ;
+          // setsProfilePic(imageAsUrl.imgUrl)  data.profilePic
         }else{
           setsAdd(true);
         }
-    }, [location.state.detail]);
+    }, [location.state.detail,imageAsUrl.imgUrl ]);
 
 
   return (
-    <Container component="main" maxWidth="xs">
+    <Container component="main" maxWidth="xs" className={classes.root} >
       <CssBaseline />
       <div className={classes.paper}>
         <Typography component="h4" variant="h4">
@@ -163,6 +215,30 @@ export default function EditLocalGuide(props) {
             </>
             : ''
           }
+            <Grid item xs={12}>
+              <input
+              accept="image/*"
+              className={classes.input}
+              id="contained-button-file"
+              multiple
+              type="file"
+              onChange={handleImageAsFile}
+              required
+              />
+              <label htmlFor="contained-button-file">
+                <Button variant="contained" color="primary" component="span">
+                  Upload
+                </Button>
+              </label>
+            </Grid>
+
+
+            <Grid item xs={12}>
+              <CardMedia 
+              image={imageAsUrl.imgUrl}
+              className={classes.media}  
+              title="Contemplative Reptile" />
+            </Grid>
 
             <Grid item xs={12}>
               <TextField

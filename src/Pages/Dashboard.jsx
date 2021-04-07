@@ -10,14 +10,11 @@ import Typography from '@material-ui/core/Typography';
 import Divider from '@material-ui/core/Divider';
 import IconButton from '@material-ui/core/IconButton';
 import Badge from '@material-ui/core/Badge';
-import Container from '@material-ui/core/Container';
-import Grid from '@material-ui/core/Grid';
-import Paper from '@material-ui/core/Paper';
 import MenuIcon from '@material-ui/icons/Menu';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 import { mainListItems } from '../Components/listItems';
-import LocalGuides from '../Components/LocalGuides';
+import ManageRouting from '../Management/ManageRouting';
 
 
 const drawerWidth = 240;
@@ -152,20 +149,7 @@ export default function Dashboard() {
         <List>{secondaryListItems}</List> */}
         
       </Drawer>
-      <main className={classes.content}>
-        <div className={classes.appBarSpacer} />
-        <Container maxWidth="lg" className={classes.container}>
-          <Grid container spacing={3}>
- 
-            {/* Recent LocalGuides */}
-            <Grid item xs={12}>
-              <Paper className={classes.paper}>
-                <LocalGuides/>
-              </Paper>
-            </Grid>
-          </Grid>
-        </Container>
-      </main>
+        <ManageRouting/>
     </div>
   );
 }

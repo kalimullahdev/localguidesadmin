@@ -6,11 +6,11 @@ import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
-import Title from './Title';
-import firebaseApp from '../firebaseServices/firebase';
-import MyTableRow from './MyTableRow/MyTableRow';
+import Title from '../../Components/Title';
 import { Button, Grid } from '@material-ui/core';
 import { useHistory } from "react-router-dom";
+import firebaseApp from '../../firebaseServices/firebase';
+import ArticleTableRow from './ArticleTableRow';
 
 
 
@@ -34,33 +34,31 @@ const useStyles = makeStyles((theme) => ({
 
 
 
-export default function LocalGuides() {
-  const [userDataRow, setuserDataRow] = useState();
+export default function ArticlesList() {
+  const [sArticles, setsArticles] = useState();
   const history = useHistory();
 
   useEffect(() => {
-    var lgUsersRef = firebaseApp.database().ref("users");
-    console.log("1");
-
+    var lgUsersRef = firebaseApp.database().ref("articles");
+    
     lgUsersRef.on("value", (snapshot) => {
-      console.log("2");
-
       const data = snapshot.val();
       console.log(data);
-      const userList = [];
+      const articleList = [];
       for (let id in data){
-        userList.push(data[id]);
+          const aid = id;
+        articleList.push({aid ,...data[id]});
       }
     
-      console.log(userList);
-      setuserDataRow(userList)
+      console.log(articleList);
+      setsArticles(articleList)
   });
 
   }, []);
   
   function goToAddPage(){
     history.push({
-      pathname: '/AElocalGuides',
+      pathname: '/AEarticle',
       state: { detail: '' }
     });
   }
@@ -69,7 +67,7 @@ export default function LocalGuides() {
   const classes = useStyles();
   return (
     <React.Fragment>
-      <Title>Local Guides Users</Title>
+      <Title>Articles</Title>
       <Grid
       container
       direction="row"
@@ -81,27 +79,25 @@ export default function LocalGuides() {
           color="primary"
           className={classes.buttonWidth}
           onClick={goToAddPage }
-        >Add Local Guide</Button>
+        >Add Article</Button>
       </Grid>
       <Table size="small">
         <TableHead>
           <TableRow>
-            <TableCell>User Name</TableCell>
-            <TableCell>Email</TableCell>
-            <TableCell>Followers</TableCell>
-            <TableCell>About</TableCell>
-            <TableCell>Profile Pic</TableCell>
-            <TableCell>Phone Number</TableCell>
-            <TableCell>Location</TableCell>
+            <TableCell>Title</TableCell>
+            <TableCell>Description</TableCell>
+            <TableCell>Article Content</TableCell>
+            <TableCell>UID</TableCell>
             <TableCell align="right">
               Buttons
             </TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
-          {userDataRow ? userDataRow.map((row) => (
-            <MyTableRow row={row}/>
+          {sArticles ? sArticles.map((row) => (
+            <ArticleTableRow row={row}/>
           )): "No data fetched from Database"}
+          
         </TableBody>
       </Table>
       <div className={classes.seeMore}>
@@ -112,3 +108,4 @@ export default function LocalGuides() {
     </React.Fragment>
   );
 }
+

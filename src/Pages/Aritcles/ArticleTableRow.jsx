@@ -1,5 +1,5 @@
 import React from 'react'
-import { Button, CardMedia } from '@material-ui/core';
+import { Button } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import TableCell from '@material-ui/core/TableCell';
 import TableRow from '@material-ui/core/TableRow';
@@ -12,44 +12,35 @@ const useStyles = makeStyles((theme) => ({
     },
     marginAll: {
       margin: theme.spacing(1),
-    },
-    media:{
-      height: 100,
-      width:100,
-      margin:theme.spacing(2),
     }
   }));
   
 
-export default function MyTableRow({row}) {
+export default function ArticleTableRow({row}) {
     const classes = useStyles();
     const history = useHistory();
 
     function deleteLocalGuide(){
       
-        const localGuideRef = firebaseApp.database().ref("users/").child(row.uid);
-        // var deleteUserRef = firebaseApp.auth();
+        const articleRef = firebaseApp.database().ref("articles/").child(row.aid);
 
-        // deleteUserRef.delete().then(function() {
-        //   console.log("User deleted.")
-        // }).catch(function(error) {
-        //   console.log("An error happened.")
-        // });
-        localGuideRef.remove();
+        articleRef.remove();
     }
 
     
     
     function editLocalGuide(){
-
-      firebaseApp.database().ref("users/").child(row.uid).get().then(function(snapshot) {
+     const aid = row.aid;
+      firebaseApp.database().ref("articles/").child(row.aid).get().then(function(snapshot) {
         if (snapshot.exists()) {
-          const lgUserData = snapshot.val();
+          const articles = snapshot.val();
+          console.log("articles");
+          console.log(articles);
           history.push({
-            pathname: '/AElocalGuides',
+            pathname: '/AEarticle',
             search: '?query=abc',
-            state: { detail: lgUserData }
-          })
+            state: { detail: {aid, ...articles} }
+          });
         }
         else {
           console.log("No data available");
@@ -66,18 +57,10 @@ export default function MyTableRow({row}) {
 
     return (
         <TableRow key={row.id}>
-        <TableCell>{row.username}</TableCell>
-        <TableCell>{row.email}</TableCell>
-        <TableCell>{row.followers}</TableCell>
-        <TableCell>{row.about}</TableCell>
-        <TableCell>
-          <CardMedia 
-          image={row.profilePic}
-          className={classes.media}  
-          title="Contemplative Reptile" />
-        </TableCell>
-        <TableCell>{row.phoneNumber}</TableCell>
-        <TableCell>{row.location}</TableCell>
+        <TableCell>{row.title}</TableCell>
+        <TableCell>{row.description}</TableCell>
+        <TableCell>{row.articleContent}</TableCell>
+        <TableCell>{row.uid}</TableCell>
         <TableCell align="right">
           <Button
           size="small"
