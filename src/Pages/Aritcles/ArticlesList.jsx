@@ -87,6 +87,7 @@ export default function ArticlesList() {
             <TableCell>Title</TableCell>
             <TableCell>Description</TableCell>
             <TableCell>Article Content</TableCell>
+            <TableCell>Article Picture</TableCell>
             <TableCell>UID</TableCell>
             <TableCell align="right">
               Buttons

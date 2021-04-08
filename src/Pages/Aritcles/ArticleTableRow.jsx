@@ -1,5 +1,5 @@
 import React from 'react'
-import { Button } from '@material-ui/core';
+import { Button, CardMedia } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import TableCell from '@material-ui/core/TableCell';
 import TableRow from '@material-ui/core/TableRow';
@@ -12,6 +12,11 @@ const useStyles = makeStyles((theme) => ({
     },
     marginAll: {
       margin: theme.spacing(1),
+    },
+    media:{
+      height: 100,
+      width:100,
+      margin:theme.spacing(2),
     }
   }));
   
@@ -60,6 +65,12 @@ export default function ArticleTableRow({row}) {
         <TableCell>{row.title}</TableCell>
         <TableCell>{row.description}</TableCell>
         <TableCell>{row.articleContent}</TableCell>
+        <TableCell>
+          <CardMedia 
+          image={row.articlePic}
+          className={classes.media}  
+          title="Contemplative Reptile" />
+        </TableCell>
         <TableCell>{row.uid}</TableCell>
         <TableCell align="right">
           <Button
